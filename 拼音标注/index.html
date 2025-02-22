@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>文本左对齐</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+</head>
+
+<body>
+    <script>
+    //文本左对齐，padStart()方法。padStart()方法可以在字符串的左侧添加指定的字符或字符串，直到字符串达到指定的长度
+    function leftAlignString(str, length) {
+        const lines = str.split("\n");
+        return lines.map(line => line.padStart(length, "▢")).join('\n');
+    }
+
+    const myString = 'Hello, World!wwwwwwww\nHello, Worl!ffffffffff\nHello, Wo!kkkkkkkkkkkkkkkk\nHeo, World!\nHello, World!\nHelo, World!';
+
+
+
+    const result = calculateLinesAndMaxLength(myString);
+    console.log("行数：", result.linesCount);
+    console.log("最大列数：", result.maxColumnCount);
+
+    //const maxLength = result.maxColumnCount;
+    const leftAlignedString = leftAlignString(myString, result.maxColumnCount);
+    console.log(leftAlignedString);
+
+
+    function calculateLinesAndMaxLength(text) {
+        // 使用正则表达式匹配所有换行符，包括Unix的\n和Windows的\r\n
+        const newlineRegex = /\r\n|\n/g;
+        // 使用split方法根据换行符分割字符串，得到行数组
+        const lines = text.split(newlineRegex);
+        // 初始化行数和最大列数
+        let linesCount = lines.length;
+        let maxColumnCount = 0;
+        // 遍历每一行，更新最大列数
+        lines.forEach(line => {
+            // 获取当前行的长度，即列数
+            const columnCount = line.length;
+            //console.log("当前长度", columnCount);
+            // 如果当前行的列数大于已知的最大列数，则更新最大列数
+            if (columnCount > maxColumnCount) {
+                maxColumnCount = columnCount;
+            }
+        });
+        // 返回行数和最大列数
+        return {
+            linesCount: linesCount,
+            maxColumnCount: maxColumnCount
+        };
+    }
+    </script>
+</body>
+
+</html>

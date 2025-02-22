@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>音乐播放器</title>
+    <meta name="description" content="一个简单的音乐播放器页面">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .upper-section {
+            display: flex;
+            flex: 1;
+        }
+
+        .player-section {
+            flex: 1;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .list-section {
+            flex: 1;
+            padding: 20px;
+            background-color: #e4e4e4;
+        }
+
+        .lower-section {
+            flex: 0.2;
+            padding: 1;
+            /* 将padding改为0，确保canvas可以完全铺满lower-section */
+            background-color: #d4d4d4;
+            position: relative;
+            /* 添加相对定位，以便子元素canvas可以使用绝对定位铺满 */
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            /* 使用绝对定位 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="upper-section">
+        <div class="player-section">
+            <!-- 音乐播放器控件 -->
+            <h2>音乐播放器</h2>
+            <audio id="audio" src="./LastSummerWhisper.flac" controls></audio>
+        </div>
+        <div class="list-section">
+            <!-- 音乐列表 -->
+            <h2>音乐列表</h2>
+            <ul id="musicList">
+                <li><a href="#" data-file="LastSummerWhisper.flac">歌曲1</a></li>
+                <li><a href="#" data-file="La-vaguelette.flac">歌曲2</a></li>
+                <li><a href="#" data-file="DawnWineryTheme.flac">歌曲3</a></li>
+                <li><a href="#" data-file="916895.flac">歌曲3</a></li>
+                <!-- 更多歌曲... -->
+            </ul>
+        </div>
+    </div>
+    <div class="lower-section">
+        <!-- 可以放置其他内容 -->
+        <canvas id="visualizer" width="" height=""></canvas>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const audio = document.getElementById('audio');
+            const canvas = document.getElementById('visualizer');
+            const ctx = canvas.getContext('2d');
+            let audioCtx = null;
+            let analyser = null;
+            let source = null;
+            let bufferLength = null;
+            let dataArray = null;
+
+            let isDrawing = false;
+            let time = 0; // 时间变量
+
+            function initAudioContext() {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioCtx.createAnalyser();
+                    source = audioCtx.createMediaElementSource(audio);
+                    source.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+
+                    // 设置音频分析器参数，fftSize为2048，表示分析的频率范围为0~22050Hz
+                    analyser.fftSize = 2048;
+                    bufferLength = analyser.frequencyBinCount;
+                    dataArray = new Uint8Array(bufferLength);
+                } catch (e) {
+                    console.error("音频上下文初始化失败: ", e);
+                }
+            }
+
+            document.getElementById('musicList').addEventListener('click', (event) => {
+                if (event.target.tagName !== 'A') return; // 如果点击的不是链接，则直接退出
+
+                event.preventDefault(); // 阻止默认的链接跳转行为
+
+                const file = event.target.getAttribute('data-file');
+                if (!file) {
+                    console.error('文件路径未定义');
+                    return;
+                }
+
+                playMusic(file);
+            });
+
+            const playMusic = (file) => {
+                const audioPlayer = document.getElementById('audio');
+                if (!audioPlayer) {
+                    console.error('音频播放器未找到');
+                    return;
+                }
+
+                audioPlayer.src = file;
+                audioPlayer.play().catch(error => {
+                    console.error('播放音乐时出错: ', error);
+                });
+            };
+
+            function draw() {
+                // 防止频繁调用draw导致性能问题
+                if (!audioCtx || !analyser || !isDrawing) { return; }
+
+                // 更新时间变量
+                time += 0.01;
+
+                // 调用requestAnimationFrame绘制动画
+                requestAnimationFrame(draw);
+
+                // 获取频域数据并绘制
+                analyser.getByteFrequencyData(dataArray);
+
+                // 清空画布
+                ctx.fillStyle = 'rgb(0, 0, 0)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // 绘制音频频谱，每个频率的高度取决于频率值
+                const barWidth = Math.max(canvas.width / bufferLength * 3.42, 1);
+                let barHeight;
+                let x = 0;
+
+                // 绘制音频频谱，每个频率的高度取决于频率值
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i];
+
+                    // 计算颜色值，随时间变化
+                    const hue = (time * 100 + (i / bufferLength) * 360) % 360;
+                    // 绘制矩形，矩形的高度为频率值，宽度为barWidth，颜色为当前矩形的颜色值
+                    ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+
+                    // 绘制矩形，矩形的高度为频率值，宽度为barWidth，x坐标为当前矩形的左上角坐标
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                    // 计算下一个矩形的左上角坐标
+                    x += barWidth + 1;
+                }
+            }
+
+            audio.addEventListener('play', () => {
+                if (!audioCtx) {
+                    initAudioContext();
+                }
+                if (analyser) {
+                    isDrawing = true;
+                    draw();
+                }
+            });
+
+            audio.addEventListener('pause', () => {
+                isDrawing = false;
+            });
+
+            audio.addEventListener('ended', () => {
+                if (audioCtx) {
+                    audioCtx.close().then(() => {
+                        console.log('音频上下文已关闭');
+                        audioCtx = null;
+                        analyser = null;
+                        source = null;
+                        bufferLength = null;
+                        dataArray = null;
+                        isDrawing = false;
+                    }).catch(e => {
+                        console.error('关闭音频上下文时出错: ', e);
+                    });
+                }
+            });
+
+            audio.addEventListener('error', (e) => {
+                console.error("音频播放错误: ", e);
+                isDrawing = false;
+            });
+        });
+
+    </script>
+</body>
+
+</html>

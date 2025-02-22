@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>输入框实时显示内容</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #inputArea {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        #display {
+            padding: 10px;
+            font-size: 48px;
+            /* 增大字体大小 */
+            font-family: '华文行楷';
+            /* 更改为行书体 */
+            border: 2px solid #e74c3c;
+            border-radius: 5px;
+            background-color: #fff;
+            width: 900px;
+            height: 550px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <textarea id="inputArea"></textarea>
+    <pre id="display"></pre>
+
+    <script>
+        /**
+         * 防抖函数
+         * @param {Function} func 要执行的函数
+         * @param {Number} delay 延迟时间
+         * **/
+        function debounce(func, delay) {
+            let timer;
+            return function (...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
+
+        /**
+         * 实时显示输入内容的函数
+         * @param {Event} event 事件对象
+         * **/
+        function updateDisplay(event) {
+            //const inputValue = event.target.value.replace(/\n/g, '<br>');
+            const inputValue = event.target.value;
+            document.getElementById('display').textContent = inputValue;
+        }
+
+        const inputArea = document.getElementById('inputArea');
+        inputArea.addEventListener('input', debounce(updateDisplay, 200));
+
+    </script>
+</body>
+
+</html>

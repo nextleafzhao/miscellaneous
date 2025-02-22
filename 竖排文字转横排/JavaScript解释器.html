@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS 代码运行器</title>
+  <style>
+    body {
+      display: flex;
+    }
+
+    #inputCode {
+      width: 45%;
+    }
+
+    #runButton {
+      width: 10%;
+      padding: 10px;
+    }
+
+    #result {
+      width: 45%;
+      padding: 10px;
+      height: 500px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <textarea id="inputCode"></textarea>
+  <button id="runButton">运行</button>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('runButton').addEventListener('click', () => {
+      const outputDiv = document.getElementById('result');
+      const code = document.getElementById('inputCode').value;
+
+      const oldConsoleLog = console.log;
+      console.log = function (message) {
+        outputDiv.innerHTML += message + '<br>';
+        oldConsoleLog.apply(console, arguments);
+      };
+
+      try {
+        eval(code);
+      } catch (error) {
+        outputDiv.innerHTML = `错误: ${error.message}`;
+      } finally {
+        console.log = oldConsoleLog;
+      }
+    });
+  </script>
+</body>
+
+</html>

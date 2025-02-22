@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>将完形填空的选项转为markdown表格</title>
+  <style>
+    body {
+      display: flex;
+    }
+
+    #inputCode {
+      width: 45%;
+    }
+
+    .runButton {
+      width: 5%;
+      padding: 10px;
+    }
+
+    #result {
+      width: 45%;
+      padding: 10px;
+      height: 500px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <textarea id="inputCode" placeholder="请从word复制，再粘贴完形填空的选项到这里 "></textarea>
+  <button class="runButton" id="runButton">我转！</button>
+  <button class="runButton" id="clearButton">清空右边的</button>
+  <pre id="result"></pre>
+ 
+  <script>
+    function removeBlankLines(text) {
+      // 将文本按换行符分割为行数组
+      let lines = text.split('\n');
+      // 使用 filter 方法筛选出非空行
+      let nonBlankLines = lines.filter(line => line.trim().length > 0);
+      // 将非空行数组重新组合为文本
+      return nonBlankLines.join('\n');
+    }
+    function textToMarkdownTable(text) {
+      const lines = removeBlankLines(text).split('\n');
+
+      // Process each line and create a table row
+      const rows = lines.map(line => {
+        const phrases = extractPhrases(line);
+        return `| ${phrases.join(' | ')} |`;
+      });
+
+      // Create the markdown table
+      const markdownTable = [
+        '| Column 1 | Column 2 | Column 3 | Column 4 | Column 5 |',
+        '| --- | --- | --- | --- | --- |',
+        ...rows
+      ].join('\n');
+
+      return markdownTable;
+    }
+
+    /**
+     * 从给定文本中提取短语
+     * @param {string} text - 包含短语的文本
+     * @returns {string[]} - 提取的短语数组
+     */
+    function extractPhrases(text) {
+      // 去除文本两端的空白字符
+      text = text.trim();
+
+      // 提取数字和点
+      const numberMatch = text.match(/^\d+\./);
+      if (!numberMatch) return [];
+      const number = numberMatch[0];
+
+      // 截取从"A."到行尾的部分
+      const start = text.indexOf('A.');
+      if (start === -1) return [];
+
+      const end = text.length;
+      const fullPhrase = text.substring(start, end).trim();
+
+      // 截取每一部分
+      const aPhrase = getPhrase(fullPhrase, 'A.', 'B.');
+      const bPhrase = getPhrase(fullPhrase, 'B.', 'C.');
+      const cPhrase = getPhrase(fullPhrase, 'C.', 'D.');
+      const dPhrase = getPhrase(fullPhrase, 'D.');
+
+      return [number, aPhrase, bPhrase, cPhrase, dPhrase];
+    }
+
+    /**
+     * 从给定文本中提取两个标记之间的短语
+     * @param {string} text - 包含短语的文本
+     * @param {string} startMarker - 短语的开始标记
+     * @param {string} [endMarker] - 短语的结束标记，如果未提供，则提取到文本末尾
+     * @returns {string} - 提取的短语
+     */
+    function getPhrase(text, startMarker, endMarker) {
+      const startIndex = text.indexOf(startMarker);
+      if (startIndex === -1) return '';
+
+      let endIndex = text.length;
+      if (endMarker) {
+        endIndex = text.indexOf(endMarker, startIndex);
+        if (endIndex === -1) return '';
+      }
+
+      return text.substring(startIndex, endIndex).trim();
+    }
+
+    document.getElementById('runButton').addEventListener('click', () => {
+      const outputDiv = document.getElementById('result');
+      const code = document.getElementById('inputCode').value;
+
+      const oldConsoleLog = console.log;
+      console.log = function (message) {
+        outputDiv.innerHTML += message + '\n';
+        oldConsoleLog.apply(console, arguments);
+      };
+
+      try {
+        const markdownTable = textToMarkdownTable(code);
+        console.log(markdownTable);
+      } catch (error) {
+        outputDiv.innerHTML = `错误: ${error.message}`;
+      } finally {
+        console.log = oldConsoleLog;
+      }
+    });
+    document.getElementById('clearButton').addEventListener('click', () => {
+      document.getElementById('result').innerHTML = "";
+    });
+
+
+
+  </script>
+</body>
+<footer>
+  <a href="https://markdown-editor.org/">转化后使用markdown编辑器查看效果</a>
+</footer>
+</html>

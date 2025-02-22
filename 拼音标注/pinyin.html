@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>拼音标注</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css.css">
+    <style>
+        .container {
+            align-items: center;
+        }
+
+        .pinyin {
+            margin-bottom: 5px;
+            font-size: 30px;
+        }
+
+        .text {
+            font-size: 30px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.6/dist/index.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="pinyin" id="output"></div>
+        <div id="inputText" class="text"></div>
+    </div>
+    <input type="text" id="inputText1" />
+    <!-- <script src="pinyin.js" async defer></script> -->
+    <script>
+        // 引入所需库
+        var { pinyin } = pinyinPro;
+
+        /*function showPinyin() {
+            const inputText = document.getElementById('inputText');
+            const output = document.getElementById('output');
+            const pinyinArr = pinyin(inputText);
+            output.innerHTML = pinyinArr;
+        }*/
+        document.getElementById('inputText1').addEventListener('input', function (e) {
+            const inputText = e.target.value;
+            //const inputText = document.getElementById('inputText');
+            document.getElementById('inputText').innerHTML = inputText;
+            const pinyinArr = pinyin(inputText);
+            document.getElementById('output').innerHTML = pinyinArr;
+        });
+    </script>
+</body>
+
+</html>

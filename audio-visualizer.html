@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Audio Visualizer - 音频可视化</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* 设置canvas的默认样式 */
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="visualizer" width="1000" height="500"></canvas>
+    <audio id="audio" src="./LastSummerWhisper.flac" controls></audio>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const audio = document.getElementById('audio');
+            const canvas = document.getElementById('visualizer');
+            const ctx = canvas.getContext('2d');
+            let audioCtx = null;
+            let analyser = null;
+            let source = null;
+            let bufferLength = null;
+            let dataArray = null;
+
+            let isDrawing = false;
+
+            function initAudioContext() {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioCtx.createAnalyser();
+                    source = audioCtx.createMediaElementSource(audio);
+                    source.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+
+                    // 设置音频分析器参数，fftSize为2048，表示分析的频率范围为0~22050Hz
+                    analyser.fftSize = 2048;
+                    bufferLength = analyser.frequencyBinCount;
+                    dataArray = new Uint8Array(bufferLength);
+                } catch (e) {
+                    console.error("音频上下文初始化失败: ", e);
+                }
+            }
+
+            function draw() {
+                // 防止频繁调用draw导致性能问题
+                if (!audioCtx || !analyser || !isDrawing) { return; }
+
+                // 调用requestAnimationFrame绘制动画
+                requestAnimationFrame(draw);
+
+                // 获取频域数据并绘制
+                analyser.getByteFrequencyData(dataArray);
+
+                // 清空画布
+                ctx.fillStyle = 'rgb(0, 0, 0)';
+                // 这里的canvas.width / bufferLength * 2.5是为了使音频频谱在画布上居中显示
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // 绘制音频频谱，2.5表示每个频率的宽度，1表示每个频率的间隔
+                const barWidth = Math.max(canvas.width / bufferLength * 2.5, 1);
+                // 这里的canvas.height - barHeight是为了使音频频谱从底部开始绘制
+                let barHeight;
+                let x = 0;
+
+                // 绘制音频频谱，每个频率的高度取决于频率值
+                for (let i = 0; i < bufferLength; i++) {
+                    // 这里的Math.min(barHeight + 100, 255)是为了使音频频谱在0~255之间显示
+                    barHeight = dataArray[i];
+
+                    // 绘制矩形，颜色由频率值决定，两个50分别是红色和绿色的强度，Math.min(barHeight + 100, 255)是为了使音频频谱在0~255之间显示
+                    ctx.fillStyle = `rgb(${Math.min(barHeight + 100, 255)}, 50, 50)`;
+                    // 绘制矩形，矩形的高度为频率值，宽度为barWidth，x坐标为当前矩形的左上角坐标
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                    // 计算下一个矩形的左上角坐标
+                    x += barWidth + 1;
+                }
+            }
+
+            audio.addEventListener('play', () => {
+                if (!audioCtx) {
+                    initAudioContext();
+                }
+                if (analyser) {
+                    isDrawing = true;
+                    draw();
+                }
+            });
+
+            audio.addEventListener('pause', () => {
+                isDrawing = false;
+            });
+
+            audio.addEventListener('playing', () => {
+                isDrawing = true;
+            });
+
+            audio.addEventListener('ended', () => {
+                if (audioCtx) {
+                    audioCtx.close().then(() => {
+                        console.log('音频上下文已关闭');
+                        audioCtx = null;
+                        analyser = null;
+                        source = null;
+                        bufferLength = null;
+                        dataArray = null;
+                        isDrawing = false;
+                    }).catch(e => {
+                        console.error('关闭音频上下文时出错: ', e);
+                    });
+                }
+            });
+
+            audio.addEventListener('error', (e) => {
+                console.error("音频播放错误: ", e);
+                isDrawing = false;
+            });
+        });
+
+    </script>
+</body>
+
+</html>

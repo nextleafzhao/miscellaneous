@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>标注拼音</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css.css">
+    <script src="index.js"></script>
+</head>
+
+<body>
+    <div class="container" id="output"></div>
+    <input type="text" id="inputText" placeholder="输入中文"/>
+    <script>
+        //使用html api
+        var { html } = pinyinPro;
+        
+        document.getElementById('inputText').addEventListener('input', function (e) {
+            const pinyinHtml = html(e.target.value);
+            document.getElementById('output').innerHTML = pinyinHtml;
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>记录</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <script src="chart.js"></script>
+    <style>
+    </style>
+</head>
+
+<body>
+    <h1>事件记录器</h1>
+    <!-- 添加事件的表单 -->
+    <form id="eventForm">
+        <input type="text" id="eventName" placeholder="事件名称">
+        <input type="datetime-local" id="eventDate" placeholder="日期和时间">
+        <input type="text" id="eventLocation" placeholder="地点">
+        <textarea id="eventDescription" placeholder="描述"></textarea>
+        <button type="submit">添加事件</button>
+    </form>
+
+    <!-- 显示柱状图的画布 -->
+    <canvas id="eventChart" width="400" height="400"></canvas>
+    <script src="myClass.js"></script>
+    <script>
+        // 实例化事件管理器和图表生成器
+        const eventManager = new EventManager();
+        const chartGenerator = new ChartGenerator('eventChart');
+
+        // 监听表单提交
+        document.getElementById('eventForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('eventName').value.trim();
+            const date = document.getElementById('eventDate').value.trim();
+            if (!name || !date) {
+                alert('名称和时间是必填项');
+                return;
+            }
+            // 获取其他表单字段的值
+            const location = document.getElementById('eventLocation').value.trim();
+            const description = document.getElementById('eventDescription').value.trim();
+
+            // 添加事件到事件管理器
+            try {
+                const event = new Event(name, date, location, description);
+                eventManager.addEvent(event);
+                const frequencyData = eventManager.getEventFrequencyByMonth();
+                chartGenerator.generateBarChart(frequencyData);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>
