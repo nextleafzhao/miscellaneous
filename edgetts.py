@@ -87,7 +87,7 @@ def split_long_lines(srt_content: str, max_length: int) -> str:
 
 if __name__ == "__main__":
     asyncio.run(generate_audio_with_subtitles(
-        input_file="input.txt",
+        input_file="ttsinput.txt",
         output_audio="output/chinese_audio.mp3",
         # output_srt="subtitles/chinese_subs.srt",
         output_srt="output/chinese_subs.srt",
