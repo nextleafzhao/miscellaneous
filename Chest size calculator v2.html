@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文胸尺寸计算器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8e3ff, #e0f0ff);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        header {
+            background: linear-gradient(to right, #ff7eb9, #ff758c);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #ff7eb9;
+            font-size: 20px;
+            border-bottom: 2px solid #ffeef5;
+            padding-bottom: 10px;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            background: #fff0f5;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff7eb9;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .input-container {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .input-field {
+            position: relative;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        input:focus {
+            border-color: #ff7eb9;
+            box-shadow: 0 0 0 3px rgba(255, 126, 185, 0.2);
+        }
+        
+        input.valid {
+            border-color: #4caf50;
+        }
+        
+        input.invalid {
+            border-color: #f44336;
+        }
+        
+        .unit {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        
+        .info-text {
+            background: #f0f8ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .info-text i {
+            color: #ff7eb9;
+            margin-right: 5px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        #calculate-btn {
+            background: linear-gradient(to right, #ff7eb9, #ff758c);
+            color: white;
+        }
+        
+        #calculate-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        #reset-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        #calculate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 126, 185, 0.4);
+        }
+        
+        #reset-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .result-section {
+            display: none;
+        }
+        
+        .result-card {
+            background: linear-gradient(to bottom right, #f0f8ff, #fff0f5);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #ffeef5;
+        }
+        
+        .main-result {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 800;
+            color: #ff3b7f;
+            margin: 15px 0 25px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .calculation-details {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .label {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .value {
+            font-weight: 600;
+            color: #ff3b7f;
+        }
+        
+        .disclaimer {
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+        
+        .error-card {
+            background: #fff0f0;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #ffcccc;
+        }
+        
+        .error-icon {
+            width: 60px;
+            height: 60px;
+            background: #ff3b7f;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .error-message {
+            font-size: 18px;
+            color: #d32f2f;
+            font-weight: 500;
+        }
+        
+        .measurement-guide {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .guide-title {
+            font-size: 22px;
+            color: #ff7eb9;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .guide-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .guide-step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            background: #f9f9ff;
+            transition: transform 0.3s;
+        }
+        
+        .guide-step:hover {
+            transform: translateY(-5px);
+            background: #f0f0ff;
+        }
+        
+        .step-icon {
+            font-size: 36px;
+            color: #ff7eb9;
+            margin-bottom: 15px;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .step-content {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 14px;
+            margin-top: auto;
+            width: 100%;
+        }
+        
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            header h1 {
+                font-size: 24px;
+            }
+            
+            .main-result {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-bra"></i> 文胸尺寸计算器</h1>
+            <p>根据专业测量标准，精确计算您的文胸尺寸</p>
+        </header>
+        
+        <div class="content">
+            <div class="form-section">
+                <form id="bra-calculator-form">
+                    <div class="section-title">
+                        <i class="fas fa-ruler"></i>
+                        <h2>测量数据输入</h2>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-container">
+                            <label for="upper-stand">上胸围（直立状态）</label>
+                            <div class="input-field">
+                                <input type="number" id="upper-stand" placeholder="请输入测量值" step="0.1" min="60" max="180" required>
+                                <span class="unit">cm</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-container">
+                            <label for="upper-45">上胸围（前倾45°）</label>
+                            <div class="input-field">
+                                <input type="number" id="upper-45" placeholder="请输入测量值" step="0.1" min="60" max="180" required>
+                                <span class="unit">cm</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-container">
+                            <label for="upper-90">上胸围（前倾90°）</label>
+                            <div class="input-field">
+                                <input type="number" id="upper-90" placeholder="请输入测量值" step="0.1" min="60" max="180" required>
+                                <span class="unit">cm</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-text">
+                        <i class="fas fa-info-circle"></i>
+                        上胸围测量说明：请分别测量直立、身体前倾45度和90度时的上胸围（通过乳头点的胸部水平围长）
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-container">
+                            <label for="lower-relax">下胸围（正常呼吸）</label>
+                            <div class="input-field">
+                                <input type="number" id="lower-relax" placeholder="请输入测量值" step="0.1" min="50" max="150" required>
+                                <span class="unit">cm</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-container">
+                            <label for="lower-tight">下胸围（最大呼气）</label>
+                            <div class="input-field">
+                                <input type="number" id="lower-tight" placeholder="请输入测量值" step="0.1" min="50" max="150" required>
+                                <span class="unit">cm</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-text">
+                        <i class="fas fa-info-circle"></i>
+                        下胸围测量说明：请分别测量正常呼吸状态和最大呼气时的下胸围（乳房基底处的水平围长）
+                    </div>
+                    
+                    <div class="buttons">
+                        <button type="submit" id="calculate-btn" disabled>
+                            <i class="fas fa-calculator"></i> 计算文胸尺寸
+                        </button>
+                        <button type="reset" id="reset-btn">
+                            <i class="fas fa-redo"></i> 重置数据
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="result-section">
+                <div class="section-title">
+                    <i class="fas fa-tshirt"></i>
+                    <h2>计算结果</h2>
+                </div>
+                <div id="result-container">
+                    <!-- 结果将由JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <div class="measurement-guide">
+                <div class="guide-title">
+                    <i class="fas fa-book-open"></i> 测量指南
+                </div>
+                <div class="guide-steps">
+                    <div class="guide-step">
+                        <div class="step-icon"><i class="fas fa-ruler-combined"></i></div>
+                        <div class="step-title">测量工具</div>
+                        <div class="step-content">使用软尺进行测量，保持软尺水平贴合身体，不要勒紧或留有空隙</div>
+                    </div>
+                    
+                    <div class="guide-step">
+                        <div class="step-icon"><i class="fas fa-user-alt"></i></div>
+                        <div class="step-title">测量姿势</div>
+                        <div class="step-content">直立测量时保持自然站立，不要弯腰驼背，手臂自然下垂</div>
+                    </div>
+                    
+                    <div class="guide-step">
+                        <div class="step-icon"><i class="fas fa-vest"></i></div>
+                        <div class="step-title">穿着建议</div>
+                        <div class="step-content">测量时穿无衬垫文胸或裸身测量，以获得准确数据</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 文胸尺寸计算器 | 专业测量工具 | 计算结果仅供参考</p>
+    </footer>
+
+    <script>
+const UPPER_MEASURE_MIN = 60;
+const UPPER_MEASURE_MAX = 180;
+const LOWER_MEASURE_MIN = 50;
+const LOWER_MEASURE_MAX = 150;
+const CUP_DIFF_START = 6.25;
+const CUP_DIFF_EXTRA_START = 37.5;
+const CUP_DIFF_STEP = 2.5;
+const LOWER_BASE_ROUNDING_STEP = 5;
+
+const STANDARD_SIZES = [60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110];
+const CUP_TYPES = [
+  { min: 6.25, max: 8.75, type: 'AA' },
+  { min: 8.75, max: 11.25, type: 'A' },
+  { min: 11.25, max: 13.75, type: 'B' },
+  { min: 13.75, max: 16.25, type: 'C' },
+  { min: 16.25, max: 18.75, type: 'D' },
+  { min: 18.75, max: 21.25, type: 'E' },
+  { min: 21.25, max: 23.75, type: 'F' },
+  { min: 23.75, max: 26.25, type: 'G' },
+  { min: 26.25, max: 28.75, type: 'H' },
+  { min: 28.75, max: 31.25, type: 'I' },
+  { min: 31.25, max: 33.75, type: 'J' },
+  { min: 33.75, max: 35.00, type: 'K' },
+  { min: 35.00, max: 37.50, type: 'L' }
+];
+
+function validateInputs(measurements) {
+  const { upperStand, upper45, upper90, lowerRelax, lowerTight } = measurements;
+  
+  const validateRange = (value, min, max, id) => {
+    if (typeof value !== 'number' || isNaN(value)) {
+      return {
+        valid: false,
+        error: {
+          code: 'ERR-401',
+          message: `请输入有效的数字（支持1位小数）`,
+          field: id
+        }
+      };
+    }
+    if (value < min || value > max) {
+      return {
+        valid: false,
+        error: {
+          code: 'ERR-401',
+          message: `请输入${min}-${max}之间的有效数值`,
+          field: id
+        }
+      };
+    }
+    return { valid: true };
+  };
+  
+  const validations = [
+    validateRange(upperStand, UPPER_MEASURE_MIN, UPPER_MEASURE_MAX, 'upper-stand'),
+    validateRange(upper45, UPPER_MEASURE_MIN, UPPER_MEASURE_MAX, 'upper-45'),
+    validateRange(upper90, UPPER_MEASURE_MIN, UPPER_MEASURE_MAX, 'upper-90'),
+    validateRange(lowerRelax, LOWER_MEASURE_MIN, LOWER_MEASURE_MAX, 'lower-relax'),
+    validateRange(lowerTight, LOWER_MEASURE_MIN, LOWER_MEASURE_MAX, 'lower-tight')
+  ];
+  const failedValidation = validations.find(v => !v.valid);
+  if (failedValidation) {return failedValidation.error;}
+  return { valid: true };
+}
+
+function getCupTypeByRange(diff) {
+  const normalizedDiff = Math.round(diff * 100) / 100;
+  // 查找最后一个满足min条件的候选杯型
+  let candidate = null;
+  for (const cup of CUP_TYPES) {if (normalizedDiff >= cup.min) {candidate = cup;} else {break;}}
+  if (candidate && normalizedDiff <= candidate.max) {return candidate.type;  }
+  if (normalizedDiff >= CUP_DIFF_EXTRA_START) {
+    const extraCups = Math.floor((normalizedDiff - CUP_DIFF_EXTRA_START) / CUP_DIFF_STEP);
+    const cupCode = 'L'.charCodeAt(0) + extraCups + 1;
+    return cupCode > 90 ? 'UNKNOWN' : String.fromCharCode(cupCode);
+  }
+  return 'UNKNOWN';
+}
+
+function calculateBraSize(measurements) {
+  const validation = validateInputs(measurements);
+  if (!validation.valid) {return validation;}
+  const { upperStand, upper45, upper90, lowerRelax, lowerTight } = measurements;
+  try {
+    const lowerRaw = Math.min(lowerTight, lowerRelax);
+    const lowerBase = Math.round(lowerRaw / LOWER_BASE_ROUNDING_STEP) * LOWER_BASE_ROUNDING_STEP;
+    if (!STANDARD_SIZES.includes(lowerBase)) {return {code: 'ERR-402',message: '下胸围测量值不在标准系列，请重新测量'};}
+    
+    const upperBase = Math.max(upperStand, upper45, upper90);
+    const cupDiff = Math.round((upperBase - lowerBase) * 10) / 10;
+    if (cupDiff < 0) {return {code: 'ERR-404',message: '测量数据矛盾，请检查输入值'};}
+    if (cupDiff < CUP_DIFF_START) {
+      return {
+        code: 'ERR-403',
+        value: cupDiff,
+        message: `差值${cupDiff.toFixed(1)}cm小于标准范围`
+      };
+    }
+    const cupType = getCupTypeByRange(cupDiff);
+    if (cupType === 'UNKNOWN') {
+      return {
+        code: 'ERR-403',
+        value: cupDiff,
+        message: `差值${cupDiff.toFixed(1)}cm大于标准范围`
+      };
+    }
+    return {
+      success: true,
+      size: `${lowerBase}${cupType}`,
+      details: {
+        lowerRaw,lowerBase,upperBase,cupDiff,cupType,
+        maxUpperMeasurement: upperBase === upperStand ? '直立' : upperBase === upper45 ? '前倾45°' : '前倾90°'
+        }
+    };
+  } catch (error) {return {code: 'ERR-500',message: '计算过程中发生未知错误',error: error.message};}
+}
+
+function generateResultHTML(result) {
+  if (!result.success) {
+    return `
+      <div class="error-card">
+        <div class="error-icon">!</div>
+        <div class="error-message">${result.message}</div>
+      </div>
+    `;
+  }
+  const { size, details } = result;
+  const { lowerRaw, lowerBase, upperBase, cupDiff, cupType, maxUpperMeasurement } = details;
+  return `
+<div class="result-card">
+  <div class="main-result">${size}</div>
+  <div class="calculation-details">
+    <div class="detail-item">
+      <span class="label">下胸围基准：</span>
+      <span class="value">${lowerRaw.toFixed(1)} cm → ${lowerBase} cm</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">上胸围基准：</span>
+      <span class="value">${upperBase.toFixed(1)} cm（${maxUpperMeasurement}测量）</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">罩杯计算：</span>
+      <span class="value">${upperBase.toFixed(1)} - ${lowerBase} = ${cupDiff.toFixed(1)} cm → ${cupType}杯</span>
+    </div>
+  </div>
+  <div class="disclaimer">
+    * 计算结果仅供参考，实际购买请结合具体品牌尺寸指南
+  </div>
+</div>
+  `;
+}
+
+function setupBraCalculator() {
+  const form = document.getElementById('bra-calculator-form');
+  const resultSection = document.querySelector('.result-section');
+  const resultContainer = document.getElementById('result-container');
+  const resetBtn = document.getElementById('reset-btn');
+  const calculateBtn = document.getElementById('calculate-btn');
+  const inputs = [
+    document.getElementById('upper-stand'),
+    document.getElementById('upper-45'),
+    document.getElementById('upper-90'),
+    document.getElementById('lower-relax'),
+    document.getElementById('lower-tight')
+  ];
+  
+  function validateInput(input) {
+    const value = parseFloat(input.value);
+    const min = input.id.includes('upper') ? UPPER_MEASURE_MIN : LOWER_MEASURE_MIN;
+    const max = input.id.includes('upper') ? UPPER_MEASURE_MAX : LOWER_MEASURE_MAX;
+    
+    if (isNaN(value) || value < min || value > max || input.value.trim() === '') {
+      input.classList.add('invalid');
+      input.classList.remove('valid');
+      return false;
+    } else {
+      input.classList.remove('invalid');
+      input.classList.add('valid');
+      return true;
+    }
+  }
+    function updateCalculateButton() {
+      const allValid = inputs.every(input => {
+        const value = parseFloat(input.value);
+        if (isNaN(value) || input.value.trim() === "") {return false;}
+        if (input.id.includes('upper')) {
+          return value >= UPPER_MEASURE_MIN && value <= UPPER_MEASURE_MAX;
+        } else {
+          return value >= LOWER_MEASURE_MIN && value <= LOWER_MEASURE_MAX;
+        }
+      });
+      calculateBtn.disabled = !allValid;
+    }
+  inputs.forEach(input => {input.addEventListener('input', function() {validateInput(this);updateCalculateButton();});});
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const measurements = {
+      upperStand: parseFloat(document.getElementById('upper-stand').value),
+      upper45: parseFloat(document.getElementById('upper-45').value),
+      upper90: parseFloat(document.getElementById('upper-90').value),
+      lowerRelax: parseFloat(document.getElementById('lower-relax').value),
+      lowerTight: parseFloat(document.getElementById('lower-tight').value)
+    };
+    const result = calculateBraSize(measurements);
+    resultContainer.innerHTML = generateResultHTML(result);
+    resultSection.style.display = 'block';
+    setTimeout(() => {
+      resultSection.scrollIntoView({ behavior: 'smooth' });
+    }, 10);
+  });
+  resetBtn.addEventListener('click', function() {
+    form.reset();
+    setTimeout(() => {
+      inputs.forEach(input => {input.classList.remove('valid', 'invalid');});
+      resultSection.style.display = 'none';
+      calculateBtn.disabled = true;
+    }, 0);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', setupBraCalculator);
+    </script>
+</body>
+</html>
